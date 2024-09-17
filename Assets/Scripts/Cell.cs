@@ -5,13 +5,13 @@ public class Cell : MonoBehaviour
     public bool isAlive;
     public bool isAliveNextGeneration  = false;
 
-    int neighborCount = 0;
+    private int neighborCount = 0;
 
-    int defaultTrailFadeTime = 20;
-    int trailFadeTime;
+    public int maxTrailFadeTime = 20;
+    public int trailFadeTime;
 
-    int defaultTrailDeathTime = 10;
-    int trailDeathTime;
+    public int maxTrailDeathTime = 10;
+    public int trailDeathTime;
 
     SpriteRenderer sprite;
     Color aliveColor = Color.white;
@@ -28,13 +28,17 @@ public class Cell : MonoBehaviour
         RandomizeAliveState();
     }
 
-    private void RandomizeAliveState()
+
+    public void RandomizeAliveState()
     {
         if (Random.Range(0, 10) == 0)
         {
             isAlive = true;
         }
+
+        UpdateColor();
     }
+
 
     public void UpdateLife()
     {
@@ -43,14 +47,15 @@ public class Cell : MonoBehaviour
         isAlive = isAliveNextGeneration;
         if (isAlive != startedGenerationAlive)
         {
-            trailFadeTime = defaultTrailFadeTime;
-            trailDeathTime = defaultTrailDeathTime;
+            trailFadeTime = maxTrailFadeTime;
+            trailDeathTime = maxTrailDeathTime;
         }
 
         isAliveNextGeneration = false;
 
         UpdateColor();
     }
+
 
     public void HardKillCell()
     {
@@ -72,7 +77,7 @@ public class Cell : MonoBehaviour
             sprite.color = aliveColor;
             return;
         }
-        else if (trailFadeTime == defaultTrailFadeTime)
+        else if (trailFadeTime == maxTrailFadeTime)
         {
             trailColor = trailStartColor;
             sprite.color = trailColor;
@@ -81,14 +86,14 @@ public class Cell : MonoBehaviour
         }
         else if (trailFadeTime > 0)
         {
-            float trailFadeRate = (float)trailFadeTime / defaultTrailFadeTime;
+            float trailFadeRate = (float)trailFadeTime / maxTrailFadeTime;
             sprite.color = Color.Lerp(trailEndColor, trailStartColor, trailFadeRate);
 
             trailFadeTime--;
         }
         else if (trailDeathTime > 0)
         {
-            float trailFadeRate = (float)trailDeathTime / defaultTrailDeathTime;
+            float trailFadeRate = (float)trailDeathTime / maxTrailDeathTime;
             sprite.color = Color.Lerp(deadColor, trailEndColor, trailFadeRate);
 
             trailDeathTime--;
@@ -98,6 +103,7 @@ public class Cell : MonoBehaviour
             sprite.enabled = false;
         }
     }
+
 
     public void CheckNeighbors(Cell[,] grid, int currentCellX, int currentCellY, int maxX, int maxY)
     {
@@ -130,6 +136,7 @@ public class Cell : MonoBehaviour
         isAliveNextGeneration = IsAliveNextGeneration();
     }
 
+
     private int Mod(int a, int b)
     {
         return (a % b + b) % b;
@@ -138,7 +145,7 @@ public class Cell : MonoBehaviour
 
     private bool IsAliveNextGeneration()
     {
-        switch(neighborCount)
+        switch (neighborCount)
         {
             default: 
                 return false;
@@ -159,8 +166,8 @@ public class Cell : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0) && GameOfLife.isPaused)
         {
-            isAlive = !isAlive;
-            UpdateColor();
+            GameOfLife.SetEditMode(isAlive);
+            DrawCell();
         }
     }
 
@@ -174,8 +181,7 @@ public class Cell : MonoBehaviour
 
         if (Input.GetMouseButton(0) && GameOfLife.isPaused)
         {
-            isAlive = !isAlive;
-            UpdateColor();
+            DrawCell();
         }
     }
 
@@ -190,5 +196,19 @@ public class Cell : MonoBehaviour
     {
         sprite.enabled = true;
         sprite.color = Color.yellow;
+    }
+
+
+    private void DrawCell()
+    {
+        if (GameOfLife.deleteMode)
+        {
+            isAlive = false;
+        }
+        else
+        { 
+            isAlive = true;
+        }
+        UpdateColor();
     }
 }

@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class GameOfLife : MonoBehaviour
@@ -19,6 +18,7 @@ public class GameOfLife : MonoBehaviour
     public float timerMax;
     float timer;
     
+    public static bool deleteMode = false;
 
     void Start()
     {
@@ -30,8 +30,8 @@ public class GameOfLife : MonoBehaviour
 
         screenHeight = mainCamera.orthographicSize * 2;
 
-        gridHeight = 200;
-        gridWidth = gridHeight * 2;
+        gridHeight = 249;
+        gridWidth = 499;
 
         isPaused = false;
 
@@ -65,7 +65,7 @@ public class GameOfLife : MonoBehaviour
             PauseGame();
         }
 
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.E))
         {
             EmptyGrid();
         }
@@ -73,6 +73,35 @@ public class GameOfLife : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.N) && isPaused)
         {
             NextGeneration();
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            RandomizeGrid();
+        }
+
+        if (Input.GetKeyDown(KeyCode.UpArrow) && isPaused)
+        {
+            int x = Random.Range(0, gridWidth);
+
+            DrawColumn(x);
+        }
+
+        if (Input.GetKeyDown(KeyCode.DownArrow) && isPaused)
+        {
+            DrawColumn(gridWidth/2);
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftArrow) && isPaused)
+        {
+            int y = Random.Range(0, gridHeight);
+
+            DrawRow(y);
+        }
+
+        if (Input.GetKeyDown(KeyCode.RightArrow) && isPaused)
+        {
+            DrawRow(gridHeight/2);
         }
     }
 
@@ -89,8 +118,7 @@ public class GameOfLife : MonoBehaviour
                 cellGrid[x, y] = Instantiate(cell);
                 cellGrid[x, y].transform.localScale *= cellSize;
 
-                Vector2 spawnPosition = CellPosition(cellSize, x, y);
-                cellGrid[x, y].transform.position = spawnPosition;
+                cellGrid[x, y].transform.position = CellPosition(cellSize, x, y);
 
                 cellGrid[x, y].UpdateColor();
             }
@@ -136,8 +164,50 @@ public class GameOfLife : MonoBehaviour
     }
 
 
+    void RandomizeGrid()
+    {
+        EmptyGrid();
+
+        for (int x = 0; x < gridWidth; x++)
+        {
+            for (int y = 0; y < gridHeight; y++)
+            {
+                cellGrid[x, y].RandomizeAliveState();
+            }
+        }
+    }
+
+
+    private void DrawColumn(int x)
+    {
+        for (int y = 0; y < gridHeight; y++)
+        {
+
+            cellGrid[x, y].isAlive = true;
+            cellGrid[x, y].UpdateColor();
+        }
+    }
+
+
+    private void DrawRow(int y)
+    {
+        for (int x = 0; x < gridWidth; x++)
+        {
+
+            cellGrid[x, y].isAlive = true;
+            cellGrid[x, y].UpdateColor();
+        }
+    }
+
+
     private Vector2 CellPosition(float cellSize, int x, int y)
     {
         return new Vector2(cellSize * x + (cellSize - 1) * 0.5f, cellSize * y + (cellSize - 1) * 0.5f);
+    }
+
+
+    public static void SetEditMode(bool isAlive)
+    {
+        deleteMode = isAlive;
     }
 }
