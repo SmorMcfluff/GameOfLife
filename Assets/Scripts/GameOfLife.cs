@@ -30,8 +30,8 @@ public class GameOfLife : MonoBehaviour
 
         screenHeight = mainCamera.orthographicSize * 2;
 
-        gridHeight = 249;
-        gridWidth = 499;
+        gridHeight = 250;
+        gridWidth = gridHeight * 2;
 
         isPaused = false;
 
@@ -102,6 +102,11 @@ public class GameOfLife : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.RightArrow) && isPaused)
         {
             DrawRow(gridHeight/2);
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            deleteMode = false;
         }
     }
 
@@ -187,7 +192,7 @@ public class GameOfLife : MonoBehaviour
             cellGrid[x, y].UpdateColor();
         }
     }
-
+    
 
     private void DrawRow(int y)
     {
