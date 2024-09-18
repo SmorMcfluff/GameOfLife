@@ -15,7 +15,7 @@ public class GameOfLife : MonoBehaviour
 
     public static bool isPaused;
 
-    public float timerMax;
+    float timerMax;
     float timer;
     
     public static bool deleteMode = false;

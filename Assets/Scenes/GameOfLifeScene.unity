@@ -229,7 +229,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cell: {fileID: 150326247427435455, guid: 987da21b66531c94f883d23d2af338a3, type: 3}
-  timerMax: 0.21
 --- !u!82 &519420034
 AudioSource:
   m_ObjectHideFlags: 0
