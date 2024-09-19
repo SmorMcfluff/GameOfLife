@@ -5,7 +5,7 @@ public class GameOfLife : MonoBehaviour
     static Camera mainCamera;
 
     public Cell cell;
-    public Cell[,] cellGrid;
+    Cell[,] cellGrid;
 
     int lifeChancePercentage = 20;
 
@@ -13,14 +13,13 @@ public class GameOfLife : MonoBehaviour
     int gridWidth;
 
     float screenHeight;
-    float screenWidth;
 
     float timerMax;
     float timer;
 
-    public static bool isPaused = false;
-    public static bool deleteMode = false;
+    static bool isPaused = false;
 
+    Vector2 mousePos;
 
     void Start()
     {
@@ -45,12 +44,15 @@ public class GameOfLife : MonoBehaviour
 
     void Update()
     {
-        playerInputs();
+        mousePos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        int[] closestCell = GetClosestCell();
+        Debug.Log(closestCell[0] + ", " + closestCell[1]);
+        PlayerInputs();
 
         if (timer >= timerMax && !isPaused)
         {
             NextGeneration();
-            timer = 0;
+            timer -= timerMax;
         }
         if (!isPaused)
         {
@@ -87,6 +89,7 @@ public class GameOfLife : MonoBehaviour
                 CheckCellNeighbors(x, y);
             }
         }
+
         for (int x = 0; x < gridWidth; x++)
         {
             for (int y = 0; y < gridHeight; y++)
@@ -96,10 +99,13 @@ public class GameOfLife : MonoBehaviour
         }
     }
 
-    public void CheckCellNeighbors(int currentCellX, int currentCellY)
+
+    void CheckCellNeighbors(int currentCellX, int currentCellY)
     {
         Cell currentCell = cellGrid[currentCellX, currentCellY];
+
         currentCell.neighborCount = 0;
+
         for (int x = currentCellX - 1; x <= currentCellX + 1; x++)
         {
             int xToCheck = x;
@@ -107,6 +113,7 @@ public class GameOfLife : MonoBehaviour
             {
                 xToCheck = Mod(x, gridWidth);
             }
+
             for (int y = currentCellY - 1; y <= currentCellY + 1; y++)
             {
                 int yToCheck = y;
@@ -128,11 +135,10 @@ public class GameOfLife : MonoBehaviour
         currentCell.isAliveNextGeneration = CellIsAliveNextGeneration(currentCell);
     }
 
-    private int Mod(int a, int b)
+    int Mod(int a, int b)
     {
         return (a % b + b) % b;
     }
-
 
 
     bool CellIsAliveNextGeneration(Cell currentCell)
@@ -165,8 +171,13 @@ public class GameOfLife : MonoBehaviour
         ColorManager.UpdateColor(currentCell);
     }
 
-    void playerInputs()
+    void PlayerInputs()
     {
+        if (Input.GetMouseButton(0) ^ Input.GetMouseButton(1))
+        {
+            mousePos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            DrawCell(Input.GetMouseButton(0));
+        }
         if (Input.GetKeyDown(KeyCode.P))
         {
             PauseGame();
@@ -204,11 +215,8 @@ public class GameOfLife : MonoBehaviour
         {
             DrawRow(gridHeight / 2);
         }
-        if (Input.GetMouseButtonUp(0))
-        {
-            deleteMode = false;
-        }
     }
+
 
     void PauseGame()
     {
@@ -234,8 +242,6 @@ public class GameOfLife : MonoBehaviour
 
     void RandomizeGrid()
     {
-
-
         for (int x = 0; x < gridWidth; x++)
         {
             for (int y = 0; y < gridHeight; y++)
@@ -252,7 +258,28 @@ public class GameOfLife : MonoBehaviour
     }
 
 
-    private void DrawColumn(int x)
+    void DrawCell(bool leftClick)
+    {
+        int[] closestCell = GetClosestCell();
+        Cell clickedCell = cellGrid[closestCell[0], closestCell[1]];
+
+        if (leftClick)
+        {
+            clickedCell.isAlive = true;
+        }
+
+
+        if (!leftClick)
+        {
+            clickedCell.isAlive = false;
+            clickedCell.trailFadeTime = 0;
+        }
+
+        ColorManager.UpdateColor(clickedCell);
+    }
+
+
+    void DrawColumn(int x)
     {
         for (int y = 0; y < gridHeight; y++)
         {
@@ -264,7 +291,7 @@ public class GameOfLife : MonoBehaviour
     }
 
 
-    private void DrawRow(int y)
+    void DrawRow(int y)
     {
         for (int x = 0; x < gridWidth; x++)
         {
@@ -276,14 +303,62 @@ public class GameOfLife : MonoBehaviour
     }
 
 
-    private Vector2 CellPosition(float cellSize, int x, int y)
+    Vector2 CellPosition(float cellSize, int x, int y)
     {
         return new Vector2(cellSize * x + (cellSize - 1) * 0.5f, cellSize * y + (cellSize - 1) * 0.5f);
     }
 
 
-    public static void SetEditMode(bool isAlive)
+    int[] GetClosestCell()
     {
-        deleteMode = isAlive;
+        float[] xDistances = new float[gridWidth];
+        float[] yDistances = new float[gridHeight];
+
+        for (int i = 0; i < gridWidth; i++)
+        {
+            float distanceToMouse = Mathf.Abs(mousePos.x - cellGrid[i, 0].transform.position.x);
+            xDistances[i] = distanceToMouse;
+        }
+
+        int xIndex = 0;
+        float closestX = xDistances[0];
+
+        for (int i = 0; i < gridWidth; i++)
+        {
+            if (xDistances[i] <= closestX)
+            {
+                closestX = xDistances[i];
+                xIndex = i;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        for (int i = 0; i < gridHeight; i++)
+        {
+            float distanceToMouse = Mathf.Abs(mousePos.y - cellGrid[0, i].transform.position.y);
+            yDistances[i] = distanceToMouse;
+        }
+
+        int yIndex = 0;
+        float closestY = yDistances[0];
+
+        for (int i = 0; i < gridHeight; i++)
+        {
+            if (yDistances[i] <= closestY)
+            {
+                closestY = yDistances[i];
+                yIndex = i;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        int[] closestCell = { xIndex, yIndex };
+        return closestCell;
     }
 }

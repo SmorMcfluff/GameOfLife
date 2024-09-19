@@ -25,54 +25,6 @@ public class Cell : MonoBehaviour
     }
 
 
-    private void DrawCell()
-    {
-        if (GameOfLife.deleteMode)
-        {
-            isAlive = false;
-        }
-        else
-        {
-            isAlive = true;
-        }
-        ColorManager.UpdateColor(this);
-    }
-
-
-    private void OnMouseOver()
-    {
-        if (GameOfLife.isPaused)
-        {
-            ChangeColorOnHoverOver();
-        }
-
-        if (Input.GetMouseButtonDown(0) && GameOfLife.isPaused)
-        {
-            GameOfLife.SetEditMode(isAlive);
-            DrawCell();
-        }
-    }
-
-
-    private void OnMouseEnter()
-    {
-        if (GameOfLife.isPaused)
-        {
-            ChangeColorOnHoverOver();
-        }
-
-        if (Input.GetMouseButton(0) && GameOfLife.isPaused)
-        {
-            DrawCell();
-        }
-    }
-
-
-    private void OnMouseExit()
-    {
-        ColorManager.UpdateColor(this);
-    }
-
     public SpriteRenderer GetSpriteRenderer()
     {
         return sprite;

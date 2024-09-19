@@ -37,7 +37,8 @@ public class ColorManager : MonoBehaviour
         }
     }
 
-    private static void TrailGradient(Cell cell)
+
+    static void TrailGradient(Cell cell)
     {
         SpriteRenderer sprite = cell.GetSpriteRenderer();
 
