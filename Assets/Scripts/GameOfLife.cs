@@ -2,11 +2,13 @@ using UnityEngine;
 
 public class GameOfLife : MonoBehaviour
 {
-    public static Camera mainCamera;
+    static Camera mainCamera;
 
     public Cell cell;
+    public Cell[,] cellGrid;
+    
+    int lifeChancePercentage = 20;
 
-    Cell[,] cellGrid;
     int gridHeight;
     int gridWidth;
 
@@ -39,6 +41,7 @@ public class GameOfLife : MonoBehaviour
         timer = 0;
 
         GenerateGrid();
+        RandomizeGrid();
     }
 
 
@@ -54,6 +57,24 @@ public class GameOfLife : MonoBehaviour
         if (!isPaused) 
         {
             timer += Time.deltaTime;
+        }
+    }
+
+    void GenerateGrid()
+    {
+        float cellSize = screenHeight / gridHeight;
+
+        cellGrid = new Cell[gridWidth, gridHeight];
+        for (int x = 0; x < gridWidth; x++)
+        {
+            for (int y = 0; y < gridHeight; y++)
+            {
+                cellGrid[x, y] = Instantiate(cell);
+                Cell currentCell = cellGrid[x, y];
+
+                currentCell.transform.localScale *= cellSize;
+                currentCell.transform.position = CellPosition(cellSize, x, y);
+            }
         }
     }
 
@@ -77,6 +98,7 @@ public class GameOfLife : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.R))
         {
+            EmptyGrid();
             RandomizeGrid();
         }
 
@@ -111,42 +133,91 @@ public class GameOfLife : MonoBehaviour
     }
 
 
-    void GenerateGrid()
-    {
-        float cellSize = screenHeight / gridHeight;
-
-        cellGrid = new Cell[gridWidth, gridHeight];
-        for (int x = 0; x < gridWidth; x++)
-        {
-            for (int y = 0; y < gridHeight; y++)
-            {
-                cellGrid[x, y] = Instantiate(cell);
-                cellGrid[x, y].transform.localScale *= cellSize;
-
-                cellGrid[x, y].transform.position = CellPosition(cellSize, x, y);
-
-                cellGrid[x, y].UpdateColor();
-            }
-        }
-    }
-
-
     void NextGeneration()
     {
         for (int x = 0; x < gridWidth; x++)
         {
             for (int y = 0; y < gridHeight; y++)
             {
-                cellGrid[x, y].CheckNeighbors(cellGrid, x, y, gridWidth, gridHeight);
+                CheckCellNeighbors(x, y);
             }
         }
         for (int x = 0; x < gridWidth; x++)
         {
             for (int y = 0; y < gridHeight; y++)
             {
-                cellGrid[x, y].UpdateLife();
+                UpdateCellLife(x, y);
             }
         }
+    }
+
+    public void CheckCellNeighbors(int currentCellX, int currentCellY)
+    {
+        Cell currentCell = cellGrid[currentCellX, currentCellY];
+        currentCell.neighborCount = 0;
+        for (int x = currentCellX - 1; x <= currentCellX + 1; x++)
+        {
+            int xToCheck = x;
+            if (x < 0 || x >= gridWidth)
+            {
+                xToCheck = Mod(x, gridWidth);
+            }
+            for (int y = currentCellY - 1; y <= currentCellY + 1; y++)
+            {
+                int yToCheck = y;
+                if (y < 0 || y >= gridHeight)
+                {
+                    yToCheck = Mod(y, gridHeight);
+                }
+                if (x == currentCellX && y == currentCellY)
+                {
+                    continue;
+                }
+                if (cellGrid[xToCheck, yToCheck].isAlive)
+                {
+                    currentCell.neighborCount++;
+                }
+            }
+        }
+
+        currentCell.isAliveNextGeneration = CellIsAliveNextGeneration(currentCell);
+    }
+
+
+    private int Mod(int a, int b)
+    {
+        return (a % b + b) % b;
+    }
+
+
+    bool CellIsAliveNextGeneration(Cell currentCell)
+    {
+        switch (currentCell.neighborCount)
+        {
+            default:
+                return false;
+            case 2:
+                return currentCell.isAlive;
+            case 3:
+                return true;
+        }
+    }
+
+    void UpdateCellLife(int x, int y)
+    {
+        Cell currentCell = cellGrid[x, y];
+        bool startedGenerationAlive = currentCell.isAlive;
+
+        currentCell.isAlive = currentCell.isAliveNextGeneration;
+
+        if (currentCell.isAlive != startedGenerationAlive)
+        {
+            currentCell.trailFadeTime = ColorManager.maxTrailFadeTime;
+        }
+
+        currentCell.isAliveNextGeneration = false;
+
+        ColorManager.UpdateColor(currentCell);
     }
 
 
@@ -163,7 +234,10 @@ public class GameOfLife : MonoBehaviour
         {
             for (int y = 0; y < gridHeight; y++)
             {
-                cellGrid[x, y].HardKillCell();
+                Cell currentCell = cellGrid[x, y];
+                cellGrid[x,y].isAlive = false;
+                currentCell.trailFadeTime = 0;
+                ColorManager.UpdateColor(currentCell);
             }
         }
     }
@@ -171,13 +245,19 @@ public class GameOfLife : MonoBehaviour
 
     void RandomizeGrid()
     {
-        EmptyGrid();
+        
 
         for (int x = 0; x < gridWidth; x++)
         {
             for (int y = 0; y < gridHeight; y++)
             {
-                cellGrid[x, y].RandomizeAliveState();
+                if (Random.Range(0, 101) <= lifeChancePercentage)
+                {
+                    Cell currentCell = cellGrid[x, y];
+
+                    currentCell.isAlive = true;
+                    ColorManager.UpdateColor(currentCell);
+                }
             }
         }
     }
@@ -187,9 +267,10 @@ public class GameOfLife : MonoBehaviour
     {
         for (int y = 0; y < gridHeight; y++)
         {
+            Cell currentCell = cellGrid[x, y];
 
-            cellGrid[x, y].isAlive = true;
-            cellGrid[x, y].UpdateColor();
+            currentCell.isAlive = true;
+            ColorManager.UpdateColor(currentCell);
         }
     }
     
@@ -198,9 +279,10 @@ public class GameOfLife : MonoBehaviour
     {
         for (int x = 0; x < gridWidth; x++)
         {
+            Cell currentCell = cellGrid[x, y];
 
-            cellGrid[x, y].isAlive = true;
-            cellGrid[x, y].UpdateColor();
+            currentCell.isAlive = true;
+            ColorManager.UpdateColor(currentCell);
         }
     }
 
