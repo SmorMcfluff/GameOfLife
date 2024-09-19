@@ -6,7 +6,7 @@ public class GameOfLife : MonoBehaviour
 
     public Cell cell;
     public Cell[,] cellGrid;
-    
+
     int lifeChancePercentage = 20;
 
     int gridHeight;
@@ -15,17 +15,17 @@ public class GameOfLife : MonoBehaviour
     float screenHeight;
     float screenWidth;
 
-    public static bool isPaused;
-
     float timerMax;
     float timer;
-    
+
+    public static bool isPaused = false;
     public static bool deleteMode = false;
+
 
     void Start()
     {
         Application.targetFrameRate = 0;
-        
+
         mainCamera = Camera.main;
         mainCamera.orthographicSize = 5;
         mainCamera.aspect = 2;
@@ -34,8 +34,6 @@ public class GameOfLife : MonoBehaviour
 
         gridHeight = 250;
         gridWidth = gridHeight * 2;
-
-        isPaused = false;
 
         timerMax = 0.02f;
         timer = 0;
@@ -54,11 +52,12 @@ public class GameOfLife : MonoBehaviour
             NextGeneration();
             timer = 0;
         }
-        if (!isPaused) 
+        if (!isPaused)
         {
             timer += Time.deltaTime;
         }
     }
+
 
     void GenerateGrid()
     {
@@ -75,60 +74,6 @@ public class GameOfLife : MonoBehaviour
                 currentCell.transform.localScale *= cellSize;
                 currentCell.transform.position = CellPosition(cellSize, x, y);
             }
-        }
-    }
-
-
-    void playerInputs()
-    {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            PauseGame();
-        }
-
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            EmptyGrid();
-        }
-
-        if (Input.GetKeyDown(KeyCode.N) && isPaused)
-        {
-            NextGeneration();
-        }
-
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            EmptyGrid();
-            RandomizeGrid();
-        }
-
-        if (Input.GetKeyDown(KeyCode.UpArrow) && isPaused)
-        {
-            int x = Random.Range(0, gridWidth);
-
-            DrawColumn(x);
-        }
-
-        if (Input.GetKeyDown(KeyCode.DownArrow) && isPaused)
-        {
-            DrawColumn(gridWidth/2);
-        }
-
-        if (Input.GetKeyDown(KeyCode.LeftArrow) && isPaused)
-        {
-            int y = Random.Range(0, gridHeight);
-
-            DrawRow(y);
-        }
-
-        if (Input.GetKeyDown(KeyCode.RightArrow) && isPaused)
-        {
-            DrawRow(gridHeight/2);
-        }
-
-        if (Input.GetMouseButtonUp(0))
-        {
-            deleteMode = false;
         }
     }
 
@@ -183,11 +128,11 @@ public class GameOfLife : MonoBehaviour
         currentCell.isAliveNextGeneration = CellIsAliveNextGeneration(currentCell);
     }
 
-
     private int Mod(int a, int b)
     {
         return (a % b + b) % b;
     }
+
 
 
     bool CellIsAliveNextGeneration(Cell currentCell)
@@ -220,6 +165,50 @@ public class GameOfLife : MonoBehaviour
         ColorManager.UpdateColor(currentCell);
     }
 
+    void playerInputs()
+    {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            PauseGame();
+        }
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            EmptyGrid();
+        }
+        if (Input.GetKeyDown(KeyCode.N) && isPaused)
+        {
+            NextGeneration();
+        }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            EmptyGrid();
+            RandomizeGrid();
+        }
+        if (Input.GetKeyDown(KeyCode.UpArrow) && isPaused)
+        {
+            int x = Random.Range(0, gridWidth);
+
+            DrawColumn(x);
+        }
+        if (Input.GetKeyDown(KeyCode.DownArrow) && isPaused)
+        {
+            DrawColumn(gridWidth / 2);
+        }
+        if (Input.GetKeyDown(KeyCode.LeftArrow) && isPaused)
+        {
+            int y = Random.Range(0, gridHeight);
+
+            DrawRow(y);
+        }
+        if (Input.GetKeyDown(KeyCode.RightArrow) && isPaused)
+        {
+            DrawRow(gridHeight / 2);
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            deleteMode = false;
+        }
+    }
 
     void PauseGame()
     {
@@ -230,12 +219,12 @@ public class GameOfLife : MonoBehaviour
 
     void EmptyGrid()
     {
-        for (int x = 0; x  < gridWidth; x++)
+        for (int x = 0; x < gridWidth; x++)
         {
             for (int y = 0; y < gridHeight; y++)
             {
                 Cell currentCell = cellGrid[x, y];
-                cellGrid[x,y].isAlive = false;
+                cellGrid[x, y].isAlive = false;
                 currentCell.trailFadeTime = 0;
                 ColorManager.UpdateColor(currentCell);
             }
@@ -245,7 +234,7 @@ public class GameOfLife : MonoBehaviour
 
     void RandomizeGrid()
     {
-        
+
 
         for (int x = 0; x < gridWidth; x++)
         {
@@ -273,7 +262,7 @@ public class GameOfLife : MonoBehaviour
             ColorManager.UpdateColor(currentCell);
         }
     }
-    
+
 
     private void DrawRow(int y)
     {
