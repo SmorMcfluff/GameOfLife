@@ -7,7 +7,7 @@ public class GameOfLife : MonoBehaviour
     public Cell cell;
     Cell[,] cellGrid;
 
-    int lifeChancePercentage = 20;
+    readonly int lifeChancePercentage = 20;
 
     int gridHeight;
     int gridWidth;
@@ -200,7 +200,7 @@ public class GameOfLife : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            DrawColumn(gridWidth / 2);
+            DrawColumn(Mathf.CeilToInt(gridWidth * 0.5f));
         }
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
@@ -210,7 +210,7 @@ public class GameOfLife : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            DrawRow(gridHeight / 2);
+            DrawRow(Mathf.CeilToInt(gridHeight / 2));
         }
     }
 
@@ -264,9 +264,7 @@ public class GameOfLife : MonoBehaviour
         {
             clickedCell.isAlive = true;
         }
-
-
-        if (!leftClick)
+        else
         {
             clickedCell.isAlive = false;
             clickedCell.trailFadeTime = 0;
@@ -304,7 +302,6 @@ public class GameOfLife : MonoBehaviour
     {
         return new Vector2(cellSize * x + (cellSize - 1) * 0.5f, cellSize * y + (cellSize - 1) * 0.5f);
     }
-
 
 
     int[] GetClosestCell()
