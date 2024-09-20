@@ -13,6 +13,7 @@ public class ColorManager : MonoBehaviour
 
     static Color trailColor;
 
+
     public static void UpdateColor(Cell cell)
     {
         SpriteRenderer sprite = cell.GetSpriteRenderer();

@@ -31,7 +31,7 @@ public class GameOfLife : MonoBehaviour
 
         screenHeight = mainCamera.orthographicSize * 2;
 
-        gridHeight = 250;
+        gridHeight = 500;
         gridWidth = gridHeight * 2;
 
         timerMax = 0.02f;
@@ -44,15 +44,12 @@ public class GameOfLife : MonoBehaviour
 
     void Update()
     {
-        mousePos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-        int[] closestCell = GetClosestCell();
-        Debug.Log(closestCell[0] + ", " + closestCell[1]);
         PlayerInputs();
 
         if (timer >= timerMax && !isPaused)
         {
             NextGeneration();
-            timer -= timerMax;
+            timer = 0;
         }
         if (!isPaused)
         {
@@ -186,7 +183,7 @@ public class GameOfLife : MonoBehaviour
         {
             EmptyGrid();
         }
-        if (Input.GetKeyDown(KeyCode.N) && isPaused)
+        if (Input.GetKeyDown(KeyCode.N))
         {
             NextGeneration();
         }
@@ -195,23 +192,23 @@ public class GameOfLife : MonoBehaviour
             EmptyGrid();
             RandomizeGrid();
         }
-        if (Input.GetKeyDown(KeyCode.UpArrow) && isPaused)
+        if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             int x = Random.Range(0, gridWidth);
 
             DrawColumn(x);
         }
-        if (Input.GetKeyDown(KeyCode.DownArrow) && isPaused)
+        if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             DrawColumn(gridWidth / 2);
         }
-        if (Input.GetKeyDown(KeyCode.LeftArrow) && isPaused)
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             int y = Random.Range(0, gridHeight);
 
             DrawRow(y);
         }
-        if (Input.GetKeyDown(KeyCode.RightArrow) && isPaused)
+        if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             DrawRow(gridHeight / 2);
         }
@@ -320,21 +317,7 @@ public class GameOfLife : MonoBehaviour
             xDistances[i] = distanceToMouse;
         }
 
-        int xIndex = 0;
-        float closestX = xDistances[0];
-
-        for (int i = 0; i < gridWidth; i++)
-        {
-            if (xDistances[i] <= closestX)
-            {
-                closestX = xDistances[i];
-                xIndex = i;
-            }
-            else
-            {
-                break;
-            }
-        }
+        int xIndex = FindCoordinate(xDistances);
 
         for (int i = 0; i < gridHeight; i++)
         {
@@ -342,23 +325,28 @@ public class GameOfLife : MonoBehaviour
             yDistances[i] = distanceToMouse;
         }
 
-        int yIndex = 0;
-        float closestY = yDistances[0];
+        int yIndex = FindCoordinate(yDistances);
 
-        for (int i = 0; i < gridHeight; i++)
+        int[] closestCell = { xIndex, yIndex };
+        return closestCell;
+    }
+
+    int FindCoordinate(float[] distances)
+    {
+        int index = 0;
+        float closestDistance = distances[0];
+        for (int i = 0; i < distances.Length; i++)
         {
-            if (yDistances[i] <= closestY)
+            if (distances[i] <= closestDistance)
             {
-                closestY = yDistances[i];
-                yIndex = i;
+                closestDistance = distances[i];
+                index = i;
             }
             else
             {
                 break;
             }
         }
-
-        int[] closestCell = { xIndex, yIndex };
-        return closestCell;
+        return index;
     }
 }
