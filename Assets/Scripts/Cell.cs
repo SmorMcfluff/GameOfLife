@@ -18,13 +18,6 @@ public class Cell : MonoBehaviour
     }
 
 
-    private void ChangeColorOnHoverOver()
-    {
-        sprite.enabled = true;
-        sprite.color = Color.yellow;
-    }
-
-
     public SpriteRenderer GetSpriteRenderer()
     {
         return sprite;

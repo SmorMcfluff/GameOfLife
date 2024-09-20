@@ -31,7 +31,7 @@ public class GameOfLife : MonoBehaviour
 
         screenHeight = mainCamera.orthographicSize * 2;
 
-        gridHeight = 500;
+        gridHeight = 300;
         gridWidth = gridHeight * 2;
 
         timerMax = 0.02f;
@@ -306,6 +306,7 @@ public class GameOfLife : MonoBehaviour
     }
 
 
+
     int[] GetClosestCell()
     {
         float[] xDistances = new float[gridWidth];
@@ -317,7 +318,7 @@ public class GameOfLife : MonoBehaviour
             xDistances[i] = distanceToMouse;
         }
 
-        int xIndex = FindCoordinate(xDistances);
+        int xIndex = FindClosest(xDistances);
 
         for (int i = 0; i < gridHeight; i++)
         {
@@ -325,16 +326,17 @@ public class GameOfLife : MonoBehaviour
             yDistances[i] = distanceToMouse;
         }
 
-        int yIndex = FindCoordinate(yDistances);
+        int yIndex = FindClosest(yDistances);
 
         int[] closestCell = { xIndex, yIndex };
         return closestCell;
     }
 
-    int FindCoordinate(float[] distances)
+    int FindClosest(float[] distances)
     {
         int index = 0;
         float closestDistance = distances[0];
+
         for (int i = 0; i < distances.Length; i++)
         {
             if (distances[i] <= closestDistance)

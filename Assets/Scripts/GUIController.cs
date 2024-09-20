@@ -29,7 +29,8 @@ public class GUIController : MonoBehaviour
         {
             return
                 "H - Close/Open this list\r\n" +
-                "P - Pause/Draw mode\r\nE - Empty Grid\r\n" +
+                "P - Pause/\r\n" +
+                "E - Empty Grid\r\n" +
                 "R - Randomize Grid\r\n\r\n" +
                 "Arrow Keys\r\n" +
                 "Up - Spawn random column\r\n" +
