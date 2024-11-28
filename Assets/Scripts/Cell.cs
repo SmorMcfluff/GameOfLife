@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Cell : MonoBehaviour
 {
-    SpriteRenderer sprite;
+    SpriteRenderer sr;
 
     public bool isAlive;
     public bool isAliveNextGeneration = false;
@@ -13,13 +13,13 @@ public class Cell : MonoBehaviour
 
     private void Awake()
     {
-        sprite = GetComponent<SpriteRenderer>();
-        sprite.enabled = false;
+        sr = GetComponent<SpriteRenderer>();
+        sr.enabled = false;
     }
 
 
     public SpriteRenderer GetSpriteRenderer()
     {
-        return sprite;
+        return sr;
     }
 }

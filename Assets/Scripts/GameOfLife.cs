@@ -71,7 +71,7 @@ public class GameOfLife : MonoBehaviour
                 Cell currentCell = cellGrid[x, y];
 
                 currentCell.transform.localScale *= cellSize;
-                currentCell.transform.position = CellPosition(cellSize, x, y);
+                currentCell.transform.position = CalculateCellPosition(cellSize, x, y);
             }
         }
     }
@@ -129,7 +129,7 @@ public class GameOfLife : MonoBehaviour
             }
         }
 
-        currentCell.isAliveNextGeneration = CellIsAliveNextGeneration(currentCell);
+        currentCell.isAliveNextGeneration = SetCellNextGenerationStatus(currentCell);
     }
 
     int Mod(int a, int b)
@@ -138,7 +138,7 @@ public class GameOfLife : MonoBehaviour
     }
 
 
-    bool CellIsAliveNextGeneration(Cell currentCell)
+    bool SetCellNextGenerationStatus(Cell currentCell)
     {
         switch (currentCell.neighborCount)
         {
@@ -257,7 +257,7 @@ public class GameOfLife : MonoBehaviour
 
     void DrawCell(bool leftClick)
     {
-        int[] closestCell = GetClosestCell();
+        int[] closestCell = FindClosestCell();
         Cell clickedCell = cellGrid[closestCell[0], closestCell[1]];
 
         if (leftClick)
@@ -298,54 +298,51 @@ public class GameOfLife : MonoBehaviour
     }
 
 
-    Vector2 CellPosition(float cellSize, int x, int y)
+    Vector2 CalculateCellPosition(float cellSize, int x, int y)
     {
         return new Vector2(cellSize * x + (cellSize - 1) * 0.5f, cellSize * y + (cellSize - 1) * 0.5f);
     }
 
 
-    int[] GetClosestCell()
+    int[] FindClosestCell()
     {
         float[] xDistances = new float[gridWidth];
         float[] yDistances = new float[gridHeight];
+
+        int closestX = 0;
+        int closestY = 0;
 
         for (int i = 0; i < gridWidth; i++)
         {
             float distanceToMouse = Mathf.Abs(mousePos.x - cellGrid[i, 0].transform.position.x);
             xDistances[i] = distanceToMouse;
-        }
 
-        int xIndex = FindClosest(xDistances);
+            if (i > 0)
+            {
+                if (xDistances[i] > xDistances[i - 1])
+                {
+                    closestX = (i - 1);
+                    break;
+                }
+            }
+        }
 
         for (int i = 0; i < gridHeight; i++)
         {
             float distanceToMouse = Mathf.Abs(mousePos.y - cellGrid[0, i].transform.position.y);
             yDistances[i] = distanceToMouse;
-        }
 
-        int yIndex = FindClosest(yDistances);
-
-        int[] closestCell = { xIndex, yIndex };
-        return closestCell;
-    }
-
-    int FindClosest(float[] distances)
-    {
-        int index = 0;
-        float closestDistance = distances[0];
-
-        for (int i = 0; i < distances.Length; i++)
-        {
-            if (distances[i] <= closestDistance)
+            if (i > 0)
             {
-                closestDistance = distances[i];
-                index = i;
-            }
-            else
-            {
-                break;
+                if (yDistances[i] > yDistances[i - 1])
+                {
+                    closestY = (i - 1);
+                    break;
+                }
             }
         }
-        return index;
+
+        int[] closestCellCoordinates = { closestX, closestY };
+        return closestCellCoordinates;
     }
 }
